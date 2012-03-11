@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://spdyindicator/skin/overlay.css"
+                 type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://spdyindicator/locale/overlay.dtd">
+
+<overlay id="spdyindicator-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"
+          src="chrome://spdyindicator/content/indicator.js" />
+  <hbox id="urlbar-icons">
+    <image id="spdyindicator-icon"
+           class="urlbar-icon"
+           hidden="true"
+           insertbefore="star-button"
+           tooltiptext="&spdyindicator.tooltip;" />
+  </hbox>
+</overlay>
