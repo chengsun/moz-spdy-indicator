@@ -14,7 +14,7 @@
       </Description>
     </em:targetApplication>
 
-    <em:name>Mozilla SPDY indicator</em:name>
+    <em:name>SPDY indicator</em:name>
     <em:description>An indicator showing SPDY support in the address bar.</em:description>
     <em:creator>Cheng Sun</em:creator>
     <em:homepageURL>http://github.com/chengsun/moz-spdy-indicator</em:homepageURL>
