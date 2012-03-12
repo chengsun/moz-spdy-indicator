@@ -1,3 +1,6 @@
-#spdyindicator-icon {
-    list-style-image: url("chrome://spdyindicator/skin/icon-spdy.png");
+#spdyindicator-icon[state=active] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-spdy-active.png");
+}
+#spdyindicator-icon[state=subactive] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-spdy-subactive.png");
 }

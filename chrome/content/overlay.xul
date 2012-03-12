@@ -13,6 +13,6 @@
            class="urlbar-icon"
            hidden="true"
            insertbefore="star-button"
-           tooltiptext="&spdyindicator.tooltip;" />
+           tooltiptext="&spdyindicator.tooltipInactive;" />
   </hbox>
 </overlay>

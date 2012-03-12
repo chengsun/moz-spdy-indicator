@@ -1,1 +1,3 @@
-<!ENTITY  spdyindicator.tooltip  "SPDY is active">
+<!ENTITY  spdyindicator.tooltipInactive   "SPDY is inactive">
+<!ENTITY  spdyindicator.tooltipActive     "SPDY is active for the top-level document">
+<!ENTITY  spdyindicator.tooltipSubactive  "SPDY is active for sub-documents included in the top-level document">
