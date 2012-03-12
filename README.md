@@ -3,6 +3,8 @@ Firefox extension to add an SPDY support indicator in the address bar.
 Inspired by http://www.devthought.com/2012/03/10/chrome-spdy-indicator/
 This extension is [now on AMO](https://addons.mozilla.org/en-US/firefox/addon/spdy-indicator/).
 
+Address bar icon by http://glyphicons.com/ - CC license.
+
 ## License
 
                 DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
