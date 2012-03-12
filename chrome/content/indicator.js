@@ -7,6 +7,8 @@ var SPDYObserver = {
   start: function () {
     var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     observerService.addObserver(SPDYObserver, "http-on-examine-response", false);
+    observerService.addObserver(SPDYObserver, "http-on-examine-merged-response", false);
+    observerService.addObserver(SPDYObserver, "http-on-examine-cached-response", false);
 
     window.addEventListener("load", function () {
       gBrowser.addEventListener("load", SPDYObserver.update, true);
@@ -30,6 +32,8 @@ var SPDYObserver = {
   observe: function (subject, topic, data)  {
     switch (topic) {
       case "http-on-examine-response":
+      case "http-on-examine-cached-response":
+      case "http-on-examine-merged-response":
         subject.QueryInterface(Ci.nsIHttpChannel);
         var url = subject.URI.asciiSpec;
         var spdyHeader = null;
