@@ -11,7 +11,7 @@ var SPDYObserver = {
       tooltip: "SPDY is inactive",
     }, {
       name: "subactive",
-      tooltip: "SPDY is active for sub-documents included in the top-level document",
+      tooltip: "SPDY is active for some sub-documents included in the top-level document",
     }, {
       name: "active",
       tooltip: "SPDY is active for the top-level document",
