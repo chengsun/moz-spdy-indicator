@@ -2,13 +2,28 @@ let Ci = Components.interfaces;
 let Cc = Components.classes;
 
 var SPDYObserver = {
-  indicatorTooltips: {
-    "inactive":  "SPDY is inactive",
-    "subactive": "SPDY is active for sub-documents included in the top-level document",
-    "active":    "SPDY is active for the top-level document"
-  },
+  indicatorStates: [
+    {
+      name: "unknown",
+      tooltip: "SPDY state unknown",
+    }, {
+      name: "inactive",
+      tooltip: "SPDY is inactive",
+    }, {
+      name: "subactive",
+      tooltip: "SPDY is active for sub-documents included in the top-level document",
+    }, {
+      name: "active",
+      tooltip: "SPDY is active for the top-level document",
+    }
+  ],
+  minShowState: 0,
 
   start: function () {
+    SPDYObserver.minShowState = Cc["@mozilla.org/preferences-service;1"]
+                                    .getService(Components.interfaces.nsIPrefService)
+                                    .getBranch("extensions.spdyindicator.").minShowState;
+
     var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     observerService.addObserver(SPDYObserver, "http-on-examine-response", false);
     observerService.addObserver(SPDYObserver, "http-on-examine-merged-response", false);
@@ -21,16 +36,30 @@ var SPDYObserver = {
   },
 
   update: function () {
-    var spdyRequests = gBrowser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
-    var state;
-    if (!spdyRequests)                                    state = "inactive";
-    else if (!(gBrowser.currentURI.spec in spdyRequests)) state = "subactive";
-    else                                                  state = "active";
-
+    var state = gBrowser.selectedBrowser.getUserData("__spdyindicator_spdystate") || 0;
+    if (gBrowser.currentURI.scheme === "https") {
+      // page has loaded to the state where we can retrieve the URI
+      var spdyRequests = gBrowser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
+      var newState;
+      if (!spdyRequests)                              newState = 1;
+      else {
+        if (gBrowser.currentURI.spec in spdyRequests) newState = 3;
+        else                                          newState = 2;
+        // clear the requests cache
+        gBrowser.selectedBrowser.setUserData("__spdyindicator_spdyrequests", null, null);
+      }
+      // set new state
+      if (newState > state) {
+        state = newState;
+        gBrowser.selectedBrowser.setUserData("__spdyindicator_spdystate", state, null);
+      }
+    }
+    // change indicator state
     var indicator = document.getElementById("spdyindicator-icon");
-    indicator.setAttribute("hidden", state === "inactive");
-    indicator.setAttribute("state", state);
-    indicator.setAttribute("tooltiptext", SPDYObserver.indicatorTooltips[state]);
+    var indicatorState = SPDYObserver.indicatorStates[state];
+    indicator.setAttribute("hidden", state >= SPDYObserver.minShowState);
+    indicator.setAttribute("state", indicatorState.name);
+    indicator.setAttribute("tooltiptext", indicatorState.tooltip);
   },
 
   observe: function (subject, topic, data)  {
