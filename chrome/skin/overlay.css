@@ -4,3 +4,6 @@
 #spdyindicator-icon[state=subactive] {
     list-style-image: url("chrome://spdyindicator/skin/icon-spdy-subactive.png");
 }
+#spdyindicator-icon {
+    cursor: default;
+}
