@@ -36,22 +36,14 @@ var SPDYObserver = {
   },
 
   update: function () {
-    var state = gBrowser.selectedBrowser.getUserData("__spdyindicator_spdystate") || 0;
+    var state = 0;
     if (gBrowser.currentURI.scheme === "https") {
       // page has loaded to the state where we can retrieve the URI
       var spdyRequests = gBrowser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
-      var newState;
-      if (!spdyRequests)                              newState = 1;
+      if (!spdyRequests)                              state = 1;
       else {
-        if (gBrowser.currentURI.spec in spdyRequests) newState = 3;
-        else                                          newState = 2;
-        // clear the requests cache
-        gBrowser.selectedBrowser.setUserData("__spdyindicator_spdyrequests", null, null);
-      }
-      // set new state
-      if (newState > state) {
-        state = newState;
-        gBrowser.selectedBrowser.setUserData("__spdyindicator_spdystate", state, null);
+        if (gBrowser.currentURI.spec in spdyRequests) state = 3;
+        else                                          state = 2;
       }
     }
     // change indicator state
