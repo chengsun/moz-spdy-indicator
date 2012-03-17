@@ -30,7 +30,7 @@ var SPDYObserver = {
     observerService.addObserver(SPDYObserver, "http-on-examine-cached-response", false);
 
     window.addEventListener("load", function () {
-      gBrowser.addEventListener("load", SPDYObserver.update, true);
+      gBrowser.addEventListener("pageshow", SPDYObserver.update, true);
       gBrowser.addEventListener("select", SPDYObserver.update, false);
     }, false);
   },
