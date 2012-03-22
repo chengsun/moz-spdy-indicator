@@ -21,8 +21,9 @@ var SPDYObserver = {
 
   start: function () {
     SPDYObserver.minShowState = Cc["@mozilla.org/preferences-service;1"]
-                                    .getService(Components.interfaces.nsIPrefService)
-                                    .getBranch("extensions.spdyindicator.").minShowState;
+                                    .getService(Ci.nsIPrefService)
+                                    .getBranch("extensions.spdyindicator.")
+                                    .getIntPref("minShowState");
 
     var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     observerService.addObserver(SPDYObserver, "http-on-examine-response", false);
@@ -49,7 +50,7 @@ var SPDYObserver = {
     // change indicator state
     var indicator = document.getElementById("spdyindicator-icon");
     var indicatorState = SPDYObserver.indicatorStates[state];
-    indicator.setAttribute("hidden", state >= SPDYObserver.minShowState);
+    indicator.setAttribute("hidden", state < SPDYObserver.minShowState);
     indicator.setAttribute("state", indicatorState.name);
     indicator.setAttribute("tooltiptext", indicatorState.tooltip);
   },
