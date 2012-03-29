@@ -145,6 +145,7 @@ SPDYIndicator.prototype = {
     this.browser.addEventListener("select", this._update_bound, false);
 
     debug("SPDYIndicator started");
+    this.update();
   },
 
   stop: function () {
