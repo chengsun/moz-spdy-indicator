@@ -43,6 +43,7 @@ var SPDYManager = {
   setDefaultPrefs: function () {
     let defaultBranch = Services.prefs.getDefaultBranch(prefBranchName);
     defaultBranch.setIntPref("minShowState", 2);
+    defaultBranch.setBoolPref("showDebug", false);
   },
 
   // used by bootstrap.js
@@ -83,6 +84,9 @@ var SPDYManager = {
 
   getMinShowState: function () {
     return this.branch.getIntPref("minShowState");
+  },
+  getShowDebug: function () {
+    return this.branch.getBoolPref("showDebug");
   }
 };
 
@@ -105,7 +109,9 @@ function getLoadContext(request) {
 }
 
 function debug(s) {
-  Services.console.logStringMessage(s);
+  if (SPDYManager.getShowDebug()) {
+    Services.console.logStringMessage(s);
+  }
 }
 
 function SPDYIndicator(window) {
