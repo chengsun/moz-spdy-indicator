@@ -114,6 +114,7 @@ function SPDYIndicator(window) {
                        .getInterface(Ci.nsIDOMWindow)
                        .gBrowser;
   this._update_bound = this.update.bind(this);
+  this.tabProgressListener.onLocationChange = this.tabProgressListener.onLocationChange.bind(this);
   debug("SPDYIndicator created");
 }
 
@@ -143,6 +144,9 @@ SPDYIndicator.prototype = {
     // add browser event listeners
     this.browser.addEventListener("pageshow", this._update_bound, true);
     this.browser.addEventListener("select", this._update_bound, false);
+
+    // add tab location listener
+    this.browser.addTabsProgressListener(this.tabProgressListener);
 
     debug("SPDYIndicator started");
     this.update();
@@ -174,22 +178,34 @@ SPDYIndicator.prototype = {
     this.browser.removeEventListener("pageshow", this._update_bound, true);
     this.browser.removeEventListener("select", this._update_bound, false);
 
+    // remove tab location listener
+    this.browser.removeTabsProgressListener(this.tabProgressListener);
+
     debug("SPDYIndicator stopped");
   },
 
-  update: function () {
-    let state = 0;
-    let spdyRequests = this.browser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
-    if (!spdyRequests) {
-      state = 1;
-    } else {
-      if (this.browser.currentURI.prePath in spdyRequests) {
-        state = 3;
-      } else {
-        state = 2;
-      }
-    }
+  getState: function (browser) {
+    return browser.getUserData("__spdyindicator_state") || 0;
+  },
+  setState: function (browser, newState) {
+    browser.setUserData("__spdyindicator_state", newState, null);
+    this.update();
+  },
+  updateState: function (browser, newState) {
+    let oldState = this.getState(browser);
+    if (newState > oldState)
+      this.setState(browser, newState);
+  },
 
+  isTopLevelSPDY: function (browser) {
+    let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests");
+    let currentPath = browser.getUserData("__spdyindicator_path") ||
+                      browser.currentURI.prePath;
+    return (spdyRequests && currentPath in spdyRequests);
+  },
+
+  update: function () {
+    let state = this.getState(this.browser.selectedBrowser);
     // change indicator state
     let indicator = this.window.document.getElementById("spdyindicator-icon");
     let indicatorState = SPDYManager.indicatorStates[state];
@@ -198,6 +214,20 @@ SPDYIndicator.prototype = {
     indicator.setAttribute("tooltiptext", indicatorState.tooltip);
   },
   _update_bound: null,
+
+  tabProgressListener: {
+    onLocationChange: function (browser, webProgress, request, URI, flags) {
+      browser.setUserData("__spdyindicator_path", URI.prePath, null);
+      this.setState(browser, 0);
+      if (this.isTopLevelSPDY(browser)) {
+        this.updateState(browser, 3);
+      }
+    },
+    onProgressChange: function () {},
+    onSecurityChange: function () {},
+    onStateChange: function () {},
+    onStatusChange: function () {}
+  },
 
   observe: function (subject, topic, data)  {
     switch (topic) {
@@ -222,7 +252,12 @@ SPDYIndicator.prototype = {
         let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || {};
         spdyRequests[subject.URI.prePath] = true;
         browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
-        this.update();
+
+        if (this.isTopLevelSPDY(browser)) {
+          this.updateState(browser, 3);
+        } else {
+          this.updateState(browser, 2);
+        }
         break;
     }
   }
