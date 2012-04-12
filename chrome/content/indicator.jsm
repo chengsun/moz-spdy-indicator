@@ -113,6 +113,7 @@ function SPDYIndicator(window) {
   this.browser = window.QueryInterface(Ci.nsIInterfaceRequestor)
                        .getInterface(Ci.nsIDOMWindow)
                        .gBrowser;
+  this._update_bound = this.update.bind(this);
   debug("SPDYIndicator created");
 }
 
@@ -140,7 +141,6 @@ SPDYIndicator.prototype = {
     urlbarIcons.insertBefore(spdyIndicator, urlbarIcons.firstChild);
 
     // add browser event listeners
-    this._update_bound = this.update.bind(this);
     this.browser.addEventListener("pageshow", this._update_bound, true);
     this.browser.addEventListener("select", this._update_bound, false);
 
@@ -171,8 +171,8 @@ SPDYIndicator.prototype = {
     }
 
     // remove browser event listeners
-    this.browser.removeEventListener("pageshow", this._update_bound);
-    this.browser.removeEventListener("select", this._update_bound);
+    this.browser.removeEventListener("pageshow", this._update_bound, true);
+    this.browser.removeEventListener("select", this._update_bound, false);
 
     debug("SPDYIndicator stopped");
   },
