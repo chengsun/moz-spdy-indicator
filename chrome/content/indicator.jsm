@@ -182,10 +182,14 @@ SPDYIndicator.prototype = {
     if (this.browser.currentURI.scheme === "https") {
       // page has loaded to the state where we can retrieve the URI
       let spdyRequests = this.browser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
-      if (!spdyRequests)                              state = 1;
-      else {
-        if (this.browser.currentURI.spec in spdyRequests) state = 3;
-        else                                          state = 2;
+      if (!spdyRequests) {
+        state = 1;
+      } else {
+        if (this.browser.currentURI.prePath in spdyRequests) {
+          state = 3;
+        } else {
+          state = 2;
+        }
       }
     }
     // change indicator state
@@ -203,7 +207,6 @@ SPDYIndicator.prototype = {
       case "http-on-examine-cached-response":
       case "http-on-examine-merged-response":
         subject.QueryInterface(Ci.nsIHttpChannel);
-        let requestURI = subject.URI.spec;
 
         // make sure we are requested via SPDY
         let spdyHeader = null;
@@ -219,7 +222,7 @@ SPDYIndicator.prototype = {
         if (!browser) return;
 
         let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || {};
-        spdyRequests[requestURI] = true;
+        spdyRequests[subject.URI.prePath] = true;
         browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
         this.update();
         break;
