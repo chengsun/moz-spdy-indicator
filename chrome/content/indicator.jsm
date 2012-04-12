@@ -179,19 +179,17 @@ SPDYIndicator.prototype = {
 
   update: function () {
     let state = 0;
-    if (this.browser.currentURI.scheme === "https") {
-      // page has loaded to the state where we can retrieve the URI
-      let spdyRequests = this.browser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
-      if (!spdyRequests) {
-        state = 1;
+    let spdyRequests = this.browser.selectedBrowser.getUserData("__spdyindicator_spdyrequests");
+    if (!spdyRequests) {
+      state = 1;
+    } else {
+      if (this.browser.currentURI.prePath in spdyRequests) {
+        state = 3;
       } else {
-        if (this.browser.currentURI.prePath in spdyRequests) {
-          state = 3;
-        } else {
-          state = 2;
-        }
+        state = 2;
       }
     }
+
     // change indicator state
     let indicator = this.window.document.getElementById("spdyindicator-icon");
     let indicatorState = SPDYManager.indicatorStates[state];
