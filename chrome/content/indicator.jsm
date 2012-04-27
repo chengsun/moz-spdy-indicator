@@ -3,14 +3,42 @@ var EXPORTED_SYMBOLS = ["SPDYManager"];
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
+function getLoadContext(request) {
+  let loadContext = null;
+  try {
+    loadContext = request.QueryInterface(Ci.nsIChannel)
+                         .notificationCallbacks
+                         .getInterface(Ci.nsILoadContext);
+  } catch (e) {
+    try {
+      loadContext = request.loadGroup
+                           .notificationCallbacks
+                           .getInterface(Ci.nsILoadContext);
+    } catch (e) {}
+  }
+
+  if (!loadContext) return null;
+  return loadContext.associatedWindow;
+}
+
+// get the chrome window from a content window
+function getChromeWindow(domWindow) {
+  return domWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIWebNavigation)
+                  .QueryInterface(Ci.nsIDocShellTreeItem)
+                  .rootTreeItem
+                  .QueryInterface(Ci.nsIInterfaceRequestor)
+                  .getInterface(Ci.nsIDOMWindow);
+}
+
 const prefBranchName = "extensions.spdyindicator.";
 var SPDYManager = {
   // private
   indicators: [],
   branch: Services.prefs.getBranch(prefBranchName),
 
-  createIndicator: function (browser) {
-    let indicator = new SPDYIndicator(browser);
+  createIndicator: function (window) {
+    let indicator = new SPDYIndicator(window);
     indicator.start();
     this.indicators.push(indicator);
     return indicator;
@@ -46,22 +74,72 @@ var SPDYManager = {
     defaultBranch.setBoolPref("showDebug", false);
   },
 
+  observe: function (subject, topic, data)  {
+    switch (topic) {
+      case "http-on-examine-response":
+      case "http-on-examine-cached-response":
+      case "http-on-examine-merged-response":
+        subject.QueryInterface(Ci.nsIHttpChannel);
+
+        // make sure we are requested via SPDY
+        let spdyHeader = null;
+        try {
+          spdyHeader = subject.getResponseHeader("X-Firefox-Spdy");
+        } catch (e) {}
+        if (!spdyHeader || !spdyHeader.length) return;
+
+        // find the browser which this request originated from
+        let domWindow = getLoadContext(subject);
+        if (!domWindow) return;
+        let window = getChromeWindow(domWindow);
+
+        // notify the appropriate indicator
+        let indicator = null;
+        for (let i in this.indicators) {
+          if (this.indicators[i].window === window) {
+            indicator = this.indicators[i];
+            break;
+          }
+        }
+        if (!indicator) {
+          debug("Could not find indicator from chrome window for request");
+        } else {
+          indicator.spdyRequested(domWindow, subject.URI);
+        }
+        break;
+    }
+  },
+
   // used by bootstrap.js
   startup: function (browser) {
     this.setDefaultPrefs();
 
+    // add response header observers
+    Services.obs.addObserver(this, "http-on-examine-response", false);
+    Services.obs.addObserver(this, "http-on-examine-merged-response", false);
+    Services.obs.addObserver(this, "http-on-examine-cached-response", false);
+
+    // add indicators for existing windows
     let browserEnum = Services.wm.getEnumerator("navigator:browser");
     while (browserEnum.hasMoreElements()) {
       this.createIndicator(browserEnum.getNext());
     }
+    // listen for window open/close events
     Services.ww.registerNotification(this.newWindowListener.bind(this));
   },
 
   shutdown: function () {
+    // remove response header observers
+    Services.obs.removeObserver(this, "http-on-examine-response");
+    Services.obs.removeObserver(this, "http-on-examine-merged-response");
+    Services.obs.removeObserver(this, "http-on-examine-cached-response");
+
+    // stop and destroy indicators for existing windows
     for (let i in this.indicators) {
       this.indicators[i].stop();
     }
     this.indicators = [];
+    // stop listening for window open/close events
     Services.ww.unregisterNotification(this.newWindowListener);
   },
 
@@ -90,24 +168,6 @@ var SPDYManager = {
   }
 };
 
-function getLoadContext(request) {
-  let loadContext = null;
-  try {
-    loadContext = request.QueryInterface(Ci.nsIChannel)
-                         .notificationCallbacks
-                         .getInterface(Ci.nsILoadContext);
-  } catch (e) {
-    try {
-      loadContext = request.loadGroup
-                           .notificationCallbacks
-                           .getInterface(Ci.nsILoadContext);
-    } catch (e) {}
-  }
-
-  if (!loadContext) return null;
-  return loadContext.associatedWindow;
-}
-
 function debug(s) {
   if (SPDYManager.getShowDebug()) {
     try {
@@ -134,11 +194,6 @@ SPDYIndicator.prototype = {
   piStylesheet: null,
 
   start: function () {
-    // add response header observers
-    Services.obs.addObserver(this, "http-on-examine-response", false);
-    Services.obs.addObserver(this, "http-on-examine-merged-response", false);
-    Services.obs.addObserver(this, "http-on-examine-cached-response", false);
-
     // insert our stylesheet
     this.piStylesheet = this.window.document.createProcessingInstruction('xml-stylesheet',
               'href="chrome://spdyindicator/skin/overlay.css" type="text/css"');
@@ -165,11 +220,6 @@ SPDYIndicator.prototype = {
   },
 
   stop: function () {
-    // remove response header observers
-    Services.obs.removeObserver(this, "http-on-examine-response");
-    Services.obs.removeObserver(this, "http-on-examine-merged-response");
-    Services.obs.removeObserver(this, "http-on-examine-cached-response");
-
     // remove stylesheet
     if (this.piStylesheet.parentNode) {
       this.piStylesheet.parentNode.removeChild(this.piStylesheet);
@@ -227,6 +277,23 @@ SPDYIndicator.prototype = {
   },
   _update_bound: null,
 
+  spdyRequested: function (domWindow, uri) {
+    debug("Requested " + uri.asciiSpec);
+
+    let browser = this.browser.getBrowserForDocument(domWindow.top.document);
+    if (!browser) return;
+
+    let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || {};
+    spdyRequests[uri.prePath] = true;
+    browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
+
+    if (this.isTopLevelSPDY(browser)) {
+      this.updateState(browser, 3);
+    } else {
+      this.updateState(browser, 2);
+    }
+  },
+
   tabProgressListener: {
     onLocationChange: function (browser, webProgress, request, URI, flags) {
       browser.setUserData("__spdyindicator_path", URI.prePath, null);
@@ -240,39 +307,6 @@ SPDYIndicator.prototype = {
     onStateChange: function () {},
     onStatusChange: function () {}
   },
-
-  observe: function (subject, topic, data)  {
-    switch (topic) {
-      case "http-on-examine-response":
-      case "http-on-examine-cached-response":
-      case "http-on-examine-merged-response":
-        subject.QueryInterface(Ci.nsIHttpChannel);
-
-        // make sure we are requested via SPDY
-        let spdyHeader = null;
-        try {
-          spdyHeader = subject.getResponseHeader("X-Firefox-Spdy");
-        } catch (e) {}
-        if (!spdyHeader || !spdyHeader.length) return;
-
-        // find the browser which this request originated from
-        let win = getLoadContext(subject);
-        if (!win) return;
-        let browser = this.browser.getBrowserForDocument(win.top.document);
-        if (!browser) return;
-
-        let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || {};
-        spdyRequests[subject.URI.prePath] = true;
-        browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
-
-        if (this.isTopLevelSPDY(browser)) {
-          this.updateState(browser, 3);
-        } else {
-          this.updateState(browser, 2);
-        }
-        break;
-    }
-  }
 };
 
 // vim: filetype=javascript
