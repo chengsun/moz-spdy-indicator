@@ -3,6 +3,10 @@ var EXPORTED_SYMBOLS = ["SPDYManager"];
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
+// this is kludgy: in order to prevent unbounded memory growth,
+// we limit the number of SPDY-requested prePaths to this number
+const SPDYREQUESTS_MAXSIZE = 20;
+
 function getLoadContext(request) {
   let loadContext = null;
   try {
@@ -263,7 +267,7 @@ SPDYIndicator.prototype = {
     let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests");
     let currentPath = browser.getUserData("__spdyindicator_path") ||
                       browser.currentURI.prePath;
-    return (spdyRequests && currentPath in spdyRequests);
+    return (spdyRequests && spdyRequests.indexOf(currentPath) !== -1);
   },
 
   update: function () {
@@ -283,8 +287,13 @@ SPDYIndicator.prototype = {
     let browser = this.browser.getBrowserForDocument(domWindow.top.document);
     if (!browser) return;
 
-    let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || {};
-    spdyRequests[uri.prePath] = true;
+    let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || [];
+    if (spdyRequests.indexOf(uri.prePath) === -1) {
+      spdyRequests.push(uri.prePath);
+    }
+    if (spdyRequests.length > SPDYREQUESTS_MAXSIZE) {
+      spdyRequests.splice(0, spdyRequests.length - SPDYREQUESTS_MAXSIZE);
+    }
     browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
 
     if (this.isTopLevelSPDY(browser)) {
