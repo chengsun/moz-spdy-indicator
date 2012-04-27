@@ -11,6 +11,7 @@ function shutdown(data, reason) {
 
   Cu.import("chrome://spdyindicator/content/indicator.jsm");
   SPDYManager.shutdown();
+  Cu.unload("chrome://spdyindicator/content/indicator.jsm");
 }
 
 function install(data, reason) {
