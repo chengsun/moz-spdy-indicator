@@ -110,7 +110,13 @@ function getLoadContext(request) {
 
 function debug(s) {
   if (SPDYManager.getShowDebug()) {
-    Services.console.logStringMessage(s);
+    try {
+      throw new Error("dummy");
+    } catch (e) {
+      var stack = e.stack.split('\n');
+      stack.splice(0, 1);
+      Services.console.logStringMessage("SPDYIndicator: " + s + "\n" + stack.join('\n'));
+    }
   }
 }
 
