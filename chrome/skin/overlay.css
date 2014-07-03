@@ -1,3 +1,15 @@
+#spdyindicator-icon[state=http2] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-http2-active.png");
+}
+#spdyindicator-icon[state=spdy31] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-spdy31-active.png");
+}
+#spdyindicator-icon[state=spdy3] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-spdy3-active.png");
+}
+#spdyindicator-icon[state=spdy2] {
+    list-style-image: url("chrome://spdyindicator/skin/icon-spdy2-active.png");
+}
 #spdyindicator-icon[state=active] {
     list-style-image: url("chrome://spdyindicator/skin/icon-spdy-active.png");
 }

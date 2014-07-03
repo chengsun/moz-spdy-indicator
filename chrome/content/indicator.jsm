@@ -108,7 +108,7 @@ var SPDYManager = {
         if (!indicator) {
           debug("Could not find indicator from chrome window for request");
         } else {
-          indicator.spdyRequested(domWindow, subject.URI);
+          indicator.spdyRequested(domWindow, subject.URI, spdyHeader);
         }
         break;
     }
@@ -161,6 +161,18 @@ var SPDYManager = {
     }, {
       name: "active",
       tooltip: "SPDY is active for the top-level document",
+    }, {
+      name: "spdy2",
+      tooltip: "SPDY 2 is active for the top-level document",
+    }, {
+      name: "spdy3",
+      tooltip: "SPDY 3 is active for the top-level document",
+    }, {
+      name: "spdy31",
+      tooltip: "SPDY 3.1 is active for the top-level document",
+    }, {
+      name: "http2",
+      tooltip: "HTTP/2 is active for the top-level document",
     }
   ],
 
@@ -270,6 +282,27 @@ SPDYIndicator.prototype = {
     return (spdyRequests && spdyRequests.indexOf(currentPath) !== -1);
   },
 
+  updateStateForSPDY: function (browser) {
+    let spdyVersions = browser.getUserData("__spdyindicator_spdyversions");
+    let currentPath = browser.getUserData("__spdyindicator_path") ||
+                      browser.currentURI.prePath;
+
+    let state = 3;
+    if (spdyVersions && spdyVersions.hasOwnProperty(currentPath)) {
+      let version = spdyVersions[currentPath];
+      if (version.match(/^h2/)) {
+        state = 7;
+      } else if (version === "3.1") {
+        state = 6;
+      } else if (version === "3") {
+        state = 5;
+      } else if (version === "2") {
+        state = 4;
+      }
+    }
+    this.updateState(browser, state);
+  },
+
   update: function () {
     let state = this.getState(this.browser.selectedBrowser);
     // change indicator state
@@ -281,23 +314,32 @@ SPDYIndicator.prototype = {
   },
   _update_bound: null,
 
-  spdyRequested: function (domWindow, uri) {
+  spdyRequested: function (domWindow, uri, version) {
     debug("Requested " + uri.asciiSpec);
+    debug("SPDY Version " + version);
 
     let browser = this.browser.getBrowserForDocument(domWindow.top.document);
     if (!browser) return;
 
     let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || [];
+    let spdyVersions = browser.getUserData("__spdyindicator_spdyversions") || {};
     if (spdyRequests.indexOf(uri.prePath) === -1) {
       spdyRequests.push(uri.prePath);
+      spdyVersions[uri.prePath] = version;
     }
     if (spdyRequests.length > SPDYREQUESTS_MAXSIZE) {
-      spdyRequests.splice(0, spdyRequests.length - SPDYREQUESTS_MAXSIZE);
+      let splices = spdyRequests.splice(0, spdyRequests.length - SPDYREQUESTS_MAXSIZE);
+      splices.forEach(function (element) {
+        if (spdyVersions.hasOwnProperty(element)) {
+          delete spdyVersions[element];
+        }
+      });
     }
     browser.setUserData("__spdyindicator_spdyrequests", spdyRequests, null);
+    browser.setUserData("__spdyindicator_spdyversions", spdyVersions, null);
 
     if (this.isTopLevelSPDY(browser)) {
-      this.updateState(browser, 3);
+      this.updateStateForSPDY(browser);
     } else {
       this.updateState(browser, 2);
     }
@@ -308,7 +350,7 @@ SPDYIndicator.prototype = {
       browser.setUserData("__spdyindicator_path", URI.prePath, null);
       this.setState(browser, 0);
       if (this.isTopLevelSPDY(browser)) {
-        this.updateState(browser, 3);
+        this.updateStateForSPDY(browser);
       }
     },
     onProgressChange: function () {},
