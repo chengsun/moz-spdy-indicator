@@ -1,3 +1,7 @@
 <!ENTITY  spdyindicator.tooltipInactive   "SPDY is inactive">
 <!ENTITY  spdyindicator.tooltipActive     "SPDY is active for the top-level document">
 <!ENTITY  spdyindicator.tooltipSubactive  "SPDY is active for sub-documents included in the top-level document">
+<!ENTITY  spdyindicator.tooltipSPDY2      "SPDY 2 is active for the top-level document">
+<!ENTITY  spdyindicator.tooltipSPDY3      "SPDY 3 is active for the top-level document">
+<!ENTITY  spdyindicator.tooltipSPDY31     "SPDY 3.1 is active for the top-level document">
+<!ENTITY  spdyindicator.tooltipHTTP2      "HTTP/2 is active for the top-level document">
