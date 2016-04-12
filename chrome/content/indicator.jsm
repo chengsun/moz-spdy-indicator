@@ -21,8 +21,7 @@ function getLoadContext(request) {
     } catch (e) {}
   }
 
-  if (!loadContext) return null;
-  return loadContext.associatedWindow;
+  return loadContext;
 }
 
 // get the chrome window from a content window
@@ -93,7 +92,19 @@ var SPDYManager = {
         if (!spdyHeader || !spdyHeader.length) return;
 
         // find the browser which this request originated from
-        let domWindow = getLoadContext(subject);
+        let loadContext = getLoadContext(subject);
+        if (!loadContext) return;
+
+        let browser = loadContext.topFrameElement;
+        let domWindow = null;
+
+        if (browser) {
+          domWindow = browser.contentWindow
+                             .QueryInterface(Ci.nsISupports);
+        } else {
+          domWindow = loadContext.associatedWindow;
+        }
+
         if (!domWindow) return;
         let window = getChromeWindow(domWindow);
 
@@ -108,7 +119,7 @@ var SPDYManager = {
         if (!indicator) {
           debug("Could not find indicator from chrome window for request");
         } else {
-          indicator.spdyRequested(domWindow, subject.URI, spdyHeader);
+          indicator.spdyRequested(domWindow, browser, subject.URI, spdyHeader);
         }
         break;
     }
@@ -314,11 +325,13 @@ SPDYIndicator.prototype = {
   },
   _update_bound: null,
 
-  spdyRequested: function (domWindow, uri, version) {
+  spdyRequested: function (domWindow, browser, uri, version) {
     debug("Requested " + uri.asciiSpec);
     debug("SPDY Version " + version);
 
-    let browser = this.browser.getBrowserForDocument(domWindow.top.document);
+    if (!browser) {
+      browser = this.browser.getBrowserForDocument(domWindow.top.document);
+    }
     if (!browser) return;
 
     let spdyRequests = browser.getUserData("__spdyindicator_spdyrequests") || [];
