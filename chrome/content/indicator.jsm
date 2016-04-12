@@ -102,7 +102,9 @@ var SPDYManager = {
           domWindow = browser.contentWindow
                              .QueryInterface(Ci.nsISupports);
         } else {
-          domWindow = loadContext.associatedWindow;
+          try {
+            domWindow = loadContext.associatedWindow;
+          } catch (e) {}
         }
 
         if (!domWindow) return;
@@ -278,7 +280,7 @@ SPDYIndicator.prototype = {
   },
   setState: function (browser, newState) {
     browser.setUserData("__spdyindicator_state", newState, null);
-    this.update();
+    this.updateIndicator(browser);
   },
   updateState: function (browser, newState) {
     let oldState = this.getState(browser);
@@ -315,13 +317,21 @@ SPDYIndicator.prototype = {
   },
 
   update: function () {
-    let state = this.getState(this.browser.selectedBrowser);
+    this.updateIndicator(this.browser.selectedBrowser);
+  },
+
+  updateIndicator: function(browser) {
     // change indicator state
     let indicator = this.window.document.getElementById("spdyindicator-icon");
-    let indicatorState = SPDYManager.indicatorStates[state];
-    indicator.setAttribute("hidden", state < SPDYManager.getMinShowState());
-    indicator.setAttribute("state", indicatorState.name);
-    indicator.setAttribute("tooltiptext", indicatorState.tooltip);
+    if (indicator) {
+      let state = this.getState(browser);
+      let indicatorState = SPDYManager.indicatorStates[state];
+      indicator.setAttribute("hidden", state < SPDYManager.getMinShowState());
+      indicator.setAttribute("state", indicatorState.name);
+      indicator.setAttribute("tooltiptext", indicatorState.tooltip);
+    } else {
+      debug("SPDYIndicator could not find icon element");
+    }
   },
   _update_bound: null,
 
