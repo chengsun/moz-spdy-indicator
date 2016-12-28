@@ -1,0 +1,6 @@
+exclude.lst
+Makefile
+README.md
+.DS_Store
+*.xpi
+vendor/*
