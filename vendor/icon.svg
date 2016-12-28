@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   width="512mm"
+   height="512mm"
+   viewBox="0 0 1814.1732 1814.1733"
+   id="svg5555"
+   version="1.1">
+  <defs
+     id="defs5557">
+    <filter
+       id="filter7381"
+       style="color-interpolation-filters:sRGB;">
+      <feOffset
+         id="feOffset7383"
+         dx="3"
+         dy="3" />
+      <feGaussianBlur
+         id="feGaussianBlur7385"
+         result="blur"
+         stdDeviation="3" />
+      <feFlood
+         id="feFlood7387"
+         result="flood"
+         flood-opacity="1"
+         flood-color="rgb(0,0,0)" />
+      <feComposite
+         id="feComposite7389"
+         result="composite"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feBlend
+         id="feBlend7391"
+         mode="normal"
+         in2="composite"
+         in="blur" />
+    </filter>
+    <filter
+       id="filter7393"
+       style="color-interpolation-filters:sRGB;">
+      <feOffset
+         id="feOffset7395"
+         dx="3"
+         dy="3" />
+      <feGaussianBlur
+         id="feGaussianBlur7397"
+         result="blur"
+         stdDeviation="3" />
+      <feFlood
+         id="feFlood7399"
+         result="flood"
+         flood-opacity="1"
+         flood-color="rgb(0,0,0)" />
+      <feComposite
+         id="feComposite7401"
+         result="composite"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feBlend
+         id="feBlend7403"
+         mode="normal"
+         in2="composite"
+         in="blur" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata5560">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(256.45265,523.80993)"
+     id="g6824">
+    <rect
+       style="opacity:0.98000004;fill:#8bb9d7;fill-opacity:0.5552147;stroke:#838383;stroke-width:0.93257421;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:1.86514838, 0.93257418999999997;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6822"
+       width="1822.3414"
+       height="698.06573"
+       x="-256.79749"
+       y="602.61395"
+       ry="9.8389502" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:312.50003052px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter7393)"
+       x="643.38599"
+       y="500.56458"
+       id="text6802"><tspan
+         x="643.38599"
+         y="500.56458"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Tahoma;-inkscape-font-specification:'Tahoma Bold';text-align:center;text-anchor:middle;fill:#3c3c3c;fill-opacity:1"
+         id="tspan6812" /><tspan
+         x="643.38599"
+         y="891.18964"
+         id="tspan6806"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Tahoma;-inkscape-font-specification:'Tahoma Bold';text-align:center;text-anchor:middle;fill:#3c3c3c;fill-opacity:1">HTTP   2</tspan></text>
+    <text
+       id="text6816"
+       y="859.5351"
+       x="643.84381"
+       style="font-style:normal;font-weight:normal;font-size:312.50003052px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter7381);"
+       xml:space="preserve"><tspan
+         id="tspan6818"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Tahoma;-inkscape-font-specification:'Tahoma Bold';text-align:center;text-anchor:middle;fill:#3c3c3c;fill-opacity:1;"
+         y="859.5351"
+         x="643.84381" /><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Tahoma;-inkscape-font-specification:'Tahoma Bold';text-align:center;text-anchor:middle;fill:#3c3c3c;fill-opacity:1;"
+         id="tspan6820"
+         y="1250.1602"
+         x="643.84381">SPDY</tspan></text>
+  </g>
+  <path
+     id="path6210"
+     d="m 1648.9889,445.21304 q 14.7754,16.41718 5.7459,36.11781 l -443.2639,949.73435 q -10.6712,20.5215 -34.4762,20.5215 -3.2834,0 -11.492,-1.6416 -13.9546,-4.1043 -20.9318,-15.5964 -6.9775,-11.4921 -3.694,-24.6258 l 161.7093,-663.25452 -333.2689,82.90685 q -3.28344,0.8209 -9.85032,0.8209 -14.77546,0 -25.44664,-9.02945 -14.77547,-12.31296 -10.67116,-32.01357 L 1088.3418,111.94413 q 3.2836,-11.49202 13.1339,-18.879764 9.8503,-7.387742 22.984,-7.387742 l 269.242,0 q 15.5964,0 26.2674,10.260754 10.6712,10.260742 10.6712,24.215352 0,6.56687 -4.1042,14.77547 l -140.3671,380.05788 325.0603,-80.44421 q 6.5669,-1.64172 9.8503,-1.64172 15.5963,0 27.9093,12.31289 z"
+     style="fill:#38d249;fill-opacity:1" />
+</svg>
