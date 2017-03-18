@@ -170,9 +170,9 @@ var SPDYManager = {
       tooltip: "SPDY is inactive",
     }, {
       name: "subactive",
-      tooltip: "SPDY is active for some sub-documents included in the top-level document",
+      tooltip: "HTTP/2 or SPDY is active for some sub-documents included in the top-level document",
     }, {
-      name: "active",
+      name: "spdy",
       tooltip: "SPDY is active for the top-level document",
     }, {
       name: "spdy2",
