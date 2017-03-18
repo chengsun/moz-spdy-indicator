@@ -1,4 +1,4 @@
-<!ENTITY  spdyindicator.tooltipInactive   "SPDY is inactive">
+<!ENTITY  spdyindicator.tooltipInactive   "Neither SPDY nor HTTP/2 are active">
 <!ENTITY  spdyindicator.tooltipActive     "SPDY is active for the top-level document">
 <!ENTITY  spdyindicator.tooltipSubactive  "HTTP/2 or SPDY is active for some sub-documents included in the top-level document">
 <!ENTITY  spdyindicator.tooltipSPDY2      "SPDY 2 is active for the top-level document">
