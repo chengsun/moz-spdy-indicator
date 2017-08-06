@@ -3,7 +3,7 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>spdyindicator@chengsun.github.com</em:id>
-    <em:version>2.3</em:version>
+    <em:version>2.4</em:version>
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
 
@@ -11,7 +11,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>10.*</em:minVersion>
-        <em:maxVersion>34.*</em:maxVersion>
+        <em:maxVersion>56.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
